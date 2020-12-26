@@ -12,7 +12,7 @@ phina.define('TitleScene', {
       .setPosition(this.gridX.center(), this.gridY.center(-3));
 
     // スタートボタン
-    const questionCountList = [10, 53, questions.data.length];
+    const questionCountList = [10, 30, 53];
     questionCountList.forEach((count, index) => {
       RectangleShape({
         width: 240, height: 80,
@@ -40,7 +40,7 @@ phina.define('TitleScene', {
       fill: COLOR.MAIN,
       align: 'left',
     }).addChildTo(this)
-      .setPosition(this.gridX.span(0) + 4, this.gridY.span(0) + 16);
+      .setPosition(this.gridX.span(0) + 4, this.gridY.span(0) + 24);
 
     new Label({
       text: '効果音: Otologic様 https://otologic.jp/',
