@@ -170,7 +170,12 @@
     },
     {
       "text": "この中で吾味人美が一番プレイしたゲームは？",
-      "answer": ["P4G", "Sekiro", "ダークソウル3", "Skyrim"]
+      "answer": [
+        "ペルソナ4 ザ・ゴールデン",
+        "Sekiro",
+        "ダークソウル3",
+        "Skyrim"
+      ]
     },
     {
       "text": "吾味人美の子供の頃の将来の夢は？",
@@ -292,7 +297,7 @@
     },
     {
       "text": "吾味人美が使ってる作曲ソフトは？",
-      "answer": ["FL Studio", "Studio One", "Cubase 11", "Logic"]
+      "answer": ["FL Studio", "Studio One", "Cubase", "Logic"]
     },
     {
       "text": "この中で吾味人美が読んだことがない漫画は？",

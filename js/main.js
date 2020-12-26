@@ -1,14 +1,15 @@
-const SE = {};
-
 phina.define("MainScene", {
   superClass: "DisplayScene",
   init: function (option) {
     this.superInit(option);
     this.backgroundColor = COLOR.BG;
 
-    SE["right"] = AssetManager.get("sound", "right");
-    SE["wrong"] = AssetManager.get("sound", "wrong");
-
+    this.mainGroup = DisplayElement().addChildTo(this)
+      .setPosition(STATIC.SCREEN_SIZE_X, 0);
+    this.mainGroup.tweener
+      .to({x: 0, y:0}, STATIC.TRANSITION_WAIT, STATIC.TRANSITION_TYPE)
+      .play();
+    this.overlayGroup = DisplayElement().addChildTo(this);
     this.questionDataList = questions.data.slice();
 
     STATIC.data.rightCount = 0;
@@ -18,7 +19,7 @@ phina.define("MainScene", {
       text: STATIC.data.nowQuestion + '/' + STATIC.data.questionCount,
       fill: COLOR.MAIN,
     })
-      .addChildTo(this)
+      .addChildTo(this.mainGroup)
       .setPosition(this.gridX.center(0), this.gridY.span(1));
 
     this.questionShape = RectangleShape({
@@ -28,7 +29,7 @@ phina.define("MainScene", {
       stroke: COLOR.MAIN,
       strokeWidth: 4,
     })
-      .addChildTo(this)
+      .addChildTo(this.mainGroup)
       .setPosition(this.gridX.center(0), this.gridY.center(-3));
 
     this.questionLabel = Label({
@@ -36,7 +37,7 @@ phina.define("MainScene", {
       text: '',
       fill: COLOR.MAIN,
     })
-      .addChildTo(this)
+      .addChildTo(this.mainGroup)
       .setPosition(this.gridX.center(0), this.gridY.center(-3));
 
     this.answerObjectList = [];
@@ -47,7 +48,7 @@ phina.define("MainScene", {
         fill: COLOR.MAIN,
         strokeWidth: 0,
       })
-        .addChildTo(this)
+        .addChildTo(this.mainGroup)
         .setPosition(this.gridX.center(), this.gridY.center(i * 1.6 + 2))
         .setInteractive(true)
         .on("pointstart", function () {
@@ -59,7 +60,7 @@ phina.define("MainScene", {
         text: '',
         fill: COLOR.BG,
       })
-        .addChildTo(this)
+        .addChildTo(this.mainGroup)
         .setPosition(this.gridX.center(), this.gridY.center(i * 1.6 + 2));
 
       this.answerObjectList.push({button: answerButton, label: answerLabel});
@@ -73,7 +74,7 @@ phina.define("MainScene", {
       stroke: COLOR.BG,
       strokeWidth: 8,
     })
-      .addChildTo(this)
+      .addChildTo(this.mainGroup)
       .setPosition(this.gridX.center(0), this.gridY.center(0));
     this.rightLabel.alpha = 0;
 
@@ -86,7 +87,7 @@ phina.define("MainScene", {
       strokeWidth: 8,
       alpha: 0,
     })
-      .addChildTo(this)
+      .addChildTo(this.mainGroup)
       .setPosition(this.gridX.center(0), this.gridY.center(0));
     this.wrongLabel.alpha = 0;
 
@@ -116,20 +117,27 @@ phina.define("MainScene", {
   answer: function(isLong, event) {
     let targetLabel;
   
-    SE.right?.stop();
-    SE.wrong?.stop();
     this.rightLabel.tweener.clear();
     this.wrongLabel.tweener.clear();
     this.rightLabel.alpha = 0;
     this.wrongLabel.alpha = 0;
 
+    if(STATIC.data.soundEnable) {
+      SE.right.stop();
+      SE.wrong.stop();
+    }
+
     if(isLong) {
       STATIC.data.rightCount++;
       targetLabel = this.rightLabel;
-      SE.right?.play();
+      if(STATIC.data.soundEnable) {
+        SE.right.play();
+      }
     } else {
       targetLabel = this.wrongLabel;
-      SE.wrong?.play();
+      if(STATIC.data.soundEnable) {
+        SE.wrong.play();
+      }
     }
 
     const wait = 15;
@@ -142,12 +150,19 @@ phina.define("MainScene", {
 
     STATIC.data.nowQuestion++;
     if(STATIC.data.nowQuestion > STATIC.data.questionCount) {
-      this.exit();
+      this.nextScene();
     }
     this.questionCountLabel.text = STATIC.data.nowQuestion + '/' + STATIC.data.questionCount;
     this.nextQuestion();
   },
-  update: function (app) {},
+  nextScene: function() {
+    this.mainGroup.tweener
+      .to({x: -STATIC.SCREEN_SIZE_X, y:0}, STATIC.TRANSITION_WAIT, STATIC.TRANSITION_TYPE)
+      .call(()=>{
+        this.exit();
+      })
+      .play();
+  }
 });
 
 function shuffle (array) {

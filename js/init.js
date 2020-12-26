@@ -6,10 +6,12 @@ fetch('./js/data.json')
   .then(json => Object.assign(questions, json));
 
 const STATIC = {
-  SCREEN_SIZE_X: 540,
+  SCREEN_SIZE_X: 580,
   SCREEN_SIZE_Y: 960,
-  FPS: 30,
+  FPS: 60,
   SUPPORT_EXT: getSupportExt(),
+  TRANSITION_WAIT: 250,
+  TRANSITION_TYPE: 'easeOutCubic',
   data: {
     soundEnable: false,
     rightCount: 0,
@@ -25,6 +27,8 @@ const COLOR = {
   RIGHT: '#FF1010',
   WRONG: '#1010DD',
 }
+
+const SE = {};
 
 const MINIMUM_ASSETS = {
   image: {},
@@ -64,45 +68,60 @@ phina.define('LoadingScene', {
     this.superInit(options);
     this.backgroundColor = COLOR.BG;
 
-    const loader = phina.asset.AssetLoader();
-    loader.onload = () => {
-      this.flare('loaded');
-    };
+    this.mainGroup = DisplayElement().addChildTo(this)
+      .setPosition(0, 0);
+    this.overlayGroup = DisplayElement().addChildTo(this);
 
     Label({
       text: '音声をロードして遊びますか？', fill: COLOR.MAIN, fontSize: 24,
-    }).addChildTo(this)
+    }).addChildTo(this.mainGroup)
       .setPosition(this.gridX.center(), this.gridY.center(-2));
 
     // 音声あり
     RectangleShape({
       height: 64, width: 256, cornerRadius: 10, fill: COLOR.MAIN, strokeWidth: 0
-    }).addChildTo(this)
+    }).addChildTo(this.mainGroup)
       .setPosition(this.gridX.center(), this.gridY.center())
       .setInteractive(true)
       .on('pointstart', () => {
-      STATIC.data.soundEnable = true;
-        loader.load(MAXIMUM_ASSETS);
+        this.nextScene(MAXIMUM_ASSETS);
       });
     Label({
       text: '音声あり', fill: COLOR.BG, fontSize: 24,
-    }).addChildTo(this)
+    }).addChildTo(this.mainGroup)
       .setPosition(this.gridX.center(), this.gridY.center());
 
     // 音声なし
     RectangleShape({
       height: 64, width: 256, cornerRadius: 10, fill: COLOR.MAIN, strokeWidth: 0
-    }).addChildTo(this)
+    }).addChildTo(this.mainGroup)
       .setPosition(this.gridX.center(), this.gridY.center(2))
       .setInteractive(true)
       .on('pointstart', () => {
-        this.flare('loaded');
+        this.nextScene(null);
       });
     Label({
       text: '音声なし', fill: COLOR.BG, fontSize: 24,
-    }).addChildTo(this)
+    }).addChildTo(this.mainGroup)
       .setPosition(this.gridX.center(), this.gridY.center(2));
   },
+  nextScene: function(assets) {
+    const loader = phina.asset.AssetLoader();
+    loader.onload = () => {
+      this.flare('loaded');
+    };
+    this.mainGroup.tweener
+      .to({x: -STATIC.SCREEN_SIZE_X, y:0}, STATIC.TRANSITION_WAIT, STATIC.TRANSITION_TYPE)
+      .call(()=>{
+        if(assets) {
+          STATIC.data.soundEnable = true;
+          loader.load(assets);
+        } else {
+          this.flare('loaded');
+        }
+      })
+      .play();
+  }
 });
 
 phina.main(function () {
