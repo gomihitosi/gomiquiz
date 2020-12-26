@@ -15,12 +15,12 @@ phina.define("MainScene", {
     STATIC.data.rightCount = 0;
     STATIC.data.nowQuestion = 1;
     this.questionCountLabel = Label({
-      fontSize: 48,
+      fontSize: 36,
       text: STATIC.data.nowQuestion + '/' + STATIC.data.questionCount,
       fill: COLOR.MAIN,
     })
       .addChildTo(this.mainGroup)
-      .setPosition(this.gridX.center(0), this.gridY.span(1));
+      .setPosition(this.gridX.center(0), this.gridY.span(0.5));
 
     this.questionShape = RectangleShape({
       height: 400,
@@ -30,66 +30,59 @@ phina.define("MainScene", {
       strokeWidth: 4,
     })
       .addChildTo(this.mainGroup)
-      .setPosition(this.gridX.center(0), this.gridY.center(-3));
+      .setPosition(this.gridX.center(0), this.gridY.center(-3.5));
 
-    this.questionLabel = Label({
-      width: 128,
+    this.questionLabelArea = LabelArea({
+      width: STATIC.SCREEN_SIZE_X - STATIC.SCREEN_PADDING,
       text: '',
       fill: COLOR.MAIN,
+      verticalAlign: 'center',
+      align: 'center',
+      baseline: 'middle',
     })
       .addChildTo(this.mainGroup)
-      .setPosition(this.gridX.center(0), this.gridY.center(-3));
+      .setPosition(this.gridX.center(0), this.gridY.center(-3.5));
 
     this.answerObjectList = [];
     for (var i = 0; i < 4; i++) {
       const answerButton = RectangleShape({
-        height: 80,
+        height: 90,
         width: STATIC.SCREEN_SIZE_X,
         fill: COLOR.MAIN,
         strokeWidth: 0,
       })
         .addChildTo(this.mainGroup)
-        .setPosition(this.gridX.center(), this.gridY.center(i * 1.6 + 2))
+        .setPosition(this.gridX.center(), this.gridY.center(i * 1.8) + 78)
         .setInteractive(true)
         .on("pointstart", function () {
           console.log('test');
         });
 
-      const answerLabel = Label({
-        fontSize: 24,
+      const answerLabelArea = LabelArea({
+        height: 90,
+        width: STATIC.SCREEN_SIZE_X - STATIC.SCREEN_PADDING,
+        fontSize: 28,
         text: '',
         fill: COLOR.BG,
+        verticalAlign: 'center',
+        align: 'center',
+        baseline: 'middle',
       })
         .addChildTo(this.mainGroup)
-        .setPosition(this.gridX.center(), this.gridY.center(i * 1.6 + 2));
+        .setPosition(this.gridX.center(), this.gridY.center(i * 1.8) + 78)
 
-      this.answerObjectList.push({button: answerButton, label: answerLabel});
+      this.answerObjectList.push({button: answerButton, labelArea: answerLabelArea});
     }
 
-    this.rightLabel = Label({
-      fontSize: 180,
-      text: '◯',
-      fontWeight: '900',
-      fill: COLOR.RIGHT,
-      stroke: COLOR.BG,
-      strokeWidth: 8,
-    })
+    this.rightSprite = Sprite("right")
       .addChildTo(this.mainGroup)
-      .setPosition(this.gridX.center(0), this.gridY.center(0));
-    this.rightLabel.alpha = 0;
+      .setPosition(this.gridX.center(), this.gridY.center());
+    this.rightSprite.alpha = 0;
 
-    this.wrongLabel = Label({
-      fontSize: 120,
-      text: '✕',
-      fontWeight: '900',
-      fill: COLOR.WRONG,
-      stroke: COLOR.BG,
-      strokeWidth: 8,
-      alpha: 0,
-    })
+    this.wrongSprite = Sprite("wrong")
       .addChildTo(this.mainGroup)
-      .setPosition(this.gridX.center(0), this.gridY.center(0));
-    this.wrongLabel.alpha = 0;
+      .setPosition(this.gridX.center(), this.gridY.center());
+    this.wrongSprite.alpha = 0;
 
     this.nextQuestion();
   },
@@ -99,14 +92,12 @@ phina.define("MainScene", {
     const rightText = questionData.answer[0];
 
     this.questionDataList.splice(questionIndex, 1);
-
-    // 15文字で改行
-    this.questionLabel.text = questionData.text.match(/.{1,15}/g).join('\n');
+    this.questionLabelArea.text = questionData.text;
 
     this.answerObjectList = shuffle(this.answerObjectList);
     this.answerObjectList.forEach((answer, index)=>{
       const answerText = questionData.answer[index];
-      answer.label.text = answerText;
+      answer.labelArea.text = answerText;
 
       answer.button.clear('pointstart')
       answer.button.on("pointstart", (e)=> {
@@ -115,12 +106,12 @@ phina.define("MainScene", {
     })
   },
   answer: function(isLong, event) {
-    let targetLabel;
+    let targetSprite;
   
-    this.rightLabel.tweener.clear();
-    this.wrongLabel.tweener.clear();
-    this.rightLabel.alpha = 0;
-    this.wrongLabel.alpha = 0;
+    this.rightSprite.tweener.clear();
+    this.wrongSprite.tweener.clear();
+    this.rightSprite.alpha = 0;
+    this.wrongSprite.alpha = 0;
 
     if(STATIC.data.soundEnable) {
       SE.right.stop();
@@ -129,28 +120,30 @@ phina.define("MainScene", {
 
     if(isLong) {
       STATIC.data.rightCount++;
-      targetLabel = this.rightLabel;
+      targetSprite = this.rightSprite;
       if(STATIC.data.soundEnable) {
         SE.right.play();
       }
     } else {
-      targetLabel = this.wrongLabel;
+      targetSprite = this.wrongSprite;
       if(STATIC.data.soundEnable) {
         SE.wrong.play();
       }
     }
 
-    const wait = 15;
-    targetLabel.tweener
-      .fadeIn(1).wait(wait).fadeOut(1)
-      .fadeIn(1).wait(wait).fadeOut(1)
-      .fadeIn(1).wait(wait).fadeOut(1)
-      .fadeIn(1).wait(wait).fadeOut(1)
-      .fadeIn(1).wait(wait).fadeOut(1).play();
+    const shortWait = 15;
+    const longWait = 60;
+    targetSprite.tweener
+      .fadeIn(shortWait).wait(longWait).fadeOut(shortWait)
+      .fadeIn(shortWait).wait(longWait).fadeOut(shortWait)
+      .fadeIn(shortWait).wait(longWait).fadeOut(shortWait)
+      .fadeIn(shortWait).wait(longWait).fadeOut(shortWait)
+      .fadeIn(shortWait).wait(longWait).fadeOut(shortWait).play();
 
     STATIC.data.nowQuestion++;
     if(STATIC.data.nowQuestion > STATIC.data.questionCount) {
       this.nextScene();
+      return;
     }
     this.questionCountLabel.text = STATIC.data.nowQuestion + '/' + STATIC.data.questionCount;
     this.nextQuestion();

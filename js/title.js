@@ -26,7 +26,7 @@ phina.define('TitleScene', {
       .setPosition(this.gridX.center(), this.gridY.center(-3));
 
     // スタートボタン
-    const questionCountList = [10, 30, 53];
+    const questionCountList = [10, 53, questions.data.length];
     questionCountList.forEach((count, index) => {
       RectangleShape({
         width: 240, height: 80,

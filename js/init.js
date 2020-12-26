@@ -8,6 +8,7 @@ fetch('./js/data.json')
 const STATIC = {
   SCREEN_SIZE_X: 580,
   SCREEN_SIZE_Y: 960,
+  SCREEN_PADDING: 24,
   FPS: 60,
   SUPPORT_EXT: getSupportExt(),
   TRANSITION_WAIT: 250,
@@ -30,17 +31,25 @@ const COLOR = {
 
 const SE = {};
 
+const IMAGES = {
+    'right': 'assets/image/right.png',
+    'wrong': 'assets/image/wrong.png',
+}
+
+const SOUNDS = {
+    'right': `assets/sound/right.${STATIC.SUPPORT_EXT}`,
+    'wrong': `assets/sound/wrong.${STATIC.SUPPORT_EXT}`,
+}
+
 const MINIMUM_ASSETS = {
-  image: {},
+  image: IMAGES,
   sound: {},
   font: {},
 };
 
 const MAXIMUM_ASSETS = {
-  sound: {
-    'right': `assets/sound/right.${STATIC.SUPPORT_EXT}`,
-    'wrong': `assets/sound/wrong.${STATIC.SUPPORT_EXT}`,
-  },
+  image:IMAGES,
+  sound: SOUNDS,
 };
 
 const SCENES = [
@@ -84,6 +93,7 @@ phina.define('LoadingScene', {
       .setPosition(this.gridX.center(), this.gridY.center())
       .setInteractive(true)
       .on('pointstart', () => {
+        STATIC.data.soundEnable = true;
         this.nextScene(MAXIMUM_ASSETS);
       });
     Label({
@@ -98,7 +108,7 @@ phina.define('LoadingScene', {
       .setPosition(this.gridX.center(), this.gridY.center(2))
       .setInteractive(true)
       .on('pointstart', () => {
-        this.nextScene(null);
+        this.nextScene(MINIMUM_ASSETS);
       });
     Label({
       text: '音声なし', fill: COLOR.BG, fontSize: 24,
@@ -113,12 +123,7 @@ phina.define('LoadingScene', {
     this.mainGroup.tweener
       .to({x: -STATIC.SCREEN_SIZE_X, y:0}, STATIC.TRANSITION_WAIT, STATIC.TRANSITION_TYPE)
       .call(()=>{
-        if(assets) {
-          STATIC.data.soundEnable = true;
-          loader.load(assets);
-        } else {
-          this.flare('loaded');
-        }
+        loader.load(assets);
       })
       .play();
   }
