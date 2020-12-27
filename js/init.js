@@ -18,6 +18,7 @@ const STATIC = {
     rightCount: 0,
     questionCount: 10,
     nowQuestion: 1,
+    timer: 0,
   }
 };
 
@@ -39,6 +40,7 @@ const IMAGES = {
 const SOUNDS = {
     'right': `assets/sound/right.${STATIC.SUPPORT_EXT}`,
     'wrong': `assets/sound/wrong.${STATIC.SUPPORT_EXT}`,
+    'fanfare': `assets/sound/fanfare.${STATIC.SUPPORT_EXT}`,
 }
 
 const MINIMUM_ASSETS = {

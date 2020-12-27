@@ -9,6 +9,11 @@ phina.define('ResultScene', {
       .setPosition(STATIC.SCREEN_SIZE_X, 0);
     this.mainGroup.tweener
       .to({x: 0, y:0}, STATIC.TRANSITION_WAIT, STATIC.TRANSITION_TYPE)
+      .call(()=>{
+        if(STATIC.data.soundEnable) {
+          SE.fanfare.play();
+        }
+      })
       .play();
     this.overlayGroup = DisplayElement().addChildTo(this);
 
@@ -19,22 +24,30 @@ phina.define('ResultScene', {
     Label({
       text: '結果発表', fontSize: 36, align: 'center', fill: COLOR.MAIN,
     }).addChildTo(this.mainGroup)
-      .setPosition(this.gridX.center(), this.gridY.span(2));
+      .setPosition(this.gridX.center(), this.gridY.span(2.2));
 
     Label({
       text: STATIC.data.rightCount + '/' + STATIC.data.questionCount, fontSize: 120, fill: COLOR.MAIN, align: 'center',
     }).addChildTo(this.mainGroup)
       .setPosition(this.gridX.center(), this.gridY.span(4));
 
+      
     Label({
-      text: 'あなたの吾味人美度は…', fontSize: 28, align: 'center', fill: COLOR.MAIN,
+      text: '所要時間 '+ (STATIC.data.timer / 1000).toFixed(1) + '秒', fontSize: 30, fill: COLOR.MAIN, align: 'center',
     }).addChildTo(this.mainGroup)
-      .setPosition(this.gridX.center(), this.gridY.span(7));
+      .setPosition(this.gridX.center(), this.gridY.center(-2));
+
+
+
+    Label({
+      text: 'あなたの吾味人美度は…', fontSize: 24, align: 'center', fill: COLOR.MAIN,
+    }).addChildTo(this.mainGroup)
+      .setPosition(this.gridX.center(), this.gridY.span(7.6));
 
     Label({
       text: result, fontSize: 48,align: 'center', fill: COLOR.MAIN,
     }).addChildTo(this.mainGroup)
-      .setPosition(this.gridX.center(), this.gridY.center());
+      .setPosition(this.gridX.center(), this.gridY.center(0.5));
 
     this.twitterBox = new RectangleShape({
       fill: COLOR.MAIN,
@@ -45,7 +58,7 @@ phina.define('ResultScene', {
       .setInteractive(true)
       .setPosition(this.gridX.center(), this.gridY.center(3))
     this.twitterBox.onclick = function () {
-      var text = `吾味人美クイズで${STATIC.data.questionCount}問中${STATIC.data.rightCount}問正解したよ！吾味人美度は「${result}」でした。`
+      var text = `吾味人美クイズで${STATIC.data.questionCount}問中${STATIC.data.rightCount}問正解したよ！吾味人美度は「${result}」でした。（所要時間 ${(STATIC.data.timer / 1000).toFixed(1)}秒）`;
       var url = Twitter.createURL({
         text: text,
         hashtags: '吾味人美クイズ',

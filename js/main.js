@@ -15,12 +15,33 @@ phina.define("MainScene", {
     STATIC.data.rightCount = 0;
     STATIC.data.nowQuestion = 1;
     this.questionCountLabel = Label({
-      fontSize: 36,
+      fontSize: 45,
       text: STATIC.data.nowQuestion + '/' + STATIC.data.questionCount,
       fill: COLOR.MAIN,
     })
       .addChildTo(this.mainGroup)
       .setPosition(this.gridX.center(0), this.gridY.span(0.5));
+
+    STATIC.data.timer = 0;
+    Label({
+      fontSize: 18,
+      text: '経過時間',
+      fill: COLOR.MAIN,
+      align: 'right',
+    })
+      .addChildTo(this.mainGroup)
+      .setPosition(this.gridX.center(7), this.gridY.span(0.35));
+
+      this.timerLabel = Label({
+      fontSize: 24,
+      text: STATIC.data.timer,
+      fill: COLOR.MAIN,
+      verticalAlign: 'center',
+      align: 'right',
+      baseline: 'middle',
+    })
+      .addChildTo(this.mainGroup)
+      .setPosition(this.gridX.center(7), this.gridY.span(0.7))
 
     this.questionShape = RectangleShape({
       height: 400,
@@ -155,7 +176,11 @@ phina.define("MainScene", {
         this.exit();
       })
       .play();
-  }
+  },
+  update:function(app) {
+      STATIC.data.timer += app.deltaTime;
+      this.timerLabel.text = (STATIC.data.timer / 1000).toFixed(1);
+  },
 });
 
 function shuffle (array) {

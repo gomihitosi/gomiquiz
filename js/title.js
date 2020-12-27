@@ -7,6 +7,7 @@ phina.define('TitleScene', {
     if(STATIC.data.soundEnable) {
       SE["right"] = AssetManager.get("sound", "right");
       SE["wrong"] = AssetManager.get("sound", "wrong");
+      SE["fanfare"] = AssetManager.get("sound", "fanfare");
     }
 
     const mainGroupX = option.leftIn ? -STATIC.SCREEN_SIZE_X : STATIC.SCREEN_SIZE_X;
@@ -49,7 +50,7 @@ phina.define('TitleScene', {
     });
 
     // iPhone対応
-    document.getElementById('canvas').addEventListener('touchstart', (e) => {
+    document.querySelector('canvas').addEventListener('touchstart', (e) => {
       for(let key in SE){
         SE[key].volume = 0;
         SE[key].play();
